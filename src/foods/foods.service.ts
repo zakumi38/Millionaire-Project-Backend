@@ -1,26 +1,53 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateFoodDto } from "./dto/create-food.dto";
 import { UpdateFoodDto } from "./dto/update-food.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Food } from "./entities/food.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class FoodsService {
-  create(createFoodDto: CreateFoodDto) {
-    return "This action adds a new food";
-  }
+    constructor(
+      @InjectRepository(Food)
+      private readonly foodRepository: Repository<Food>
+    ) {
+    }
 
-  findAll() {
-    return `This action returns all foods`;
-  }
+    create(createFoodDto: CreateFoodDto) {
+        const newRider = this.foodRepository.create({ ...createFoodDto });
+        return this.foodRepository.save(newRider);
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} food`;
-  }
+    findAll() {
+        return this.foodRepository.find({ order: { id: "ASC" } });
+    }
 
-  update(id: number, updateFoodDto: UpdateFoodDto) {
-    return `This action updates a #${id} food`;
-  }
+    async findOne(id: number) {
+        const food = await this.foodRepository.findOne({ where: { id } });
+        if (!food) throw new NotFoundException(`Food #${id} cannot be found`);
+        return food;
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} food`;
-  }
+    async update(id: number, updateFoodDto: UpdateFoodDto) {
+        const food = await this.foodRepository.preload({
+            id,
+            ...updateFoodDto
+        });
+        if (!food)
+            throw new NotFoundException(
+              `Food #${id} cannot be updated because it doesn't exist`
+            );
+        return this.foodRepository.save(food);
+    }
+
+    async remove(id: number) {
+        const food = await this.foodRepository.findOneOrFail({
+            where: { id }
+        });
+        if (food)
+            throw new NotFoundException(
+              `Food #${id} have already been deleted or doesn't exist`
+            );
+        return this.foodRepository.remove(food);
+    }
 }

@@ -21,7 +21,6 @@ export class RidersService {
   findAll() {
     return this.riderRepository.find({ order: { id: "ASC" } });
   }
-
   async findOne(id: number) {
     const rider = await this.riderRepository.findOne({ where: { id } });
     if (!rider) throw new NotFoundException(`Rider #${id} cannot be found`);

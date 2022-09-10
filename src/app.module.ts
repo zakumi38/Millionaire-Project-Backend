@@ -3,6 +3,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { RidersModule } from "./riders/riders.module";
+import { FoodsModule } from "./foods/foods.module";
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -14,7 +15,7 @@ import { RidersModule } from "./riders/riders.module";
     database: "millionaire-project-backend",
     autoLoadEntities: true,
     synchronize: true
-  }), RidersModule],
+  }), RidersModule, FoodsModule],
   controllers: [AppController],
   providers: [AppService]
 })

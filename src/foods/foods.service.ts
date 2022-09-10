@@ -41,10 +41,10 @@ export class FoodsService {
     }
 
     async remove(id: number) {
-        const food = await this.foodRepository.findOneOrFail({
+        const food = await this.foodRepository.findOne({
             where: { id }
         });
-        if (food)
+        if (!food)
             throw new NotFoundException(
               `Food #${id} have already been deleted or doesn't exist`
             );

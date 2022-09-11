@@ -1,9 +1,9 @@
-import { Column, Entity } from "typeorm";
-import { Common } from "../../common/entities/common.entity";
+import { Column, Entity } from "typeorm"
+import { Common } from "../../common/entities/common.entity"
 
 interface previousPayments {
-    date: string;
-    amount: number;
+    date: string
+    amount: number
 }
 
 @Entity()
@@ -23,6 +23,6 @@ export class Rider extends Common {
     @Column("float", { nullable: true })
     todayIncome: number
 
-    @Column("array", { nullable: true })
+    @Column("json", { nullable: true })
     previousPayments: previousPayments[]
 }

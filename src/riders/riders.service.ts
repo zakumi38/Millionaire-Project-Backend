@@ -40,10 +40,10 @@ export class RidersService {
     }
 
     async remove(id: number) {
-        const rider = await this.riderRepository.findOneOrFail({
+        const rider = await this.riderRepository.findOne({
             where: { id },
         })
-        if (rider)
+        if (!rider)
             throw new NotFoundException(
                 `Rider #${id} have already been deleted or doesn't exist`
             )

@@ -9,6 +9,6 @@ export class Shop extends Common {
     @Column("varchar")
     location: string
 
-    @Column("varchar")
+    @Column("varchar", { nullable: true })
     latitudeLongitude: string
 }

@@ -6,6 +6,7 @@ import { RidersModule } from "./riders/riders.module";
 import { FoodsModule } from "./foods/foods.module";
 import { ShopsModule } from "./shops/shops.module";
 import { CustomersModule } from './customers/customers.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -17,7 +18,7 @@ import { CustomersModule } from './customers/customers.module';
     database: "millionaire-project-backend",
     autoLoadEntities: true,
     synchronize: true
-  }), RidersModule, FoodsModule, ShopsModule, CustomersModule],
+  }), RidersModule, FoodsModule, ShopsModule, CustomersModule, OrdersModule],
   controllers: [AppController],
   providers: [AppService]
 })

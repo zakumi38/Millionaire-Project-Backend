@@ -4,39 +4,71 @@ import { UpdateShopDto } from "./dto/update-shop.dto"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Shop } from "./entities/shop.entity"
 import { Repository } from "typeorm"
+import { Food } from "../foods/entities/food.entity"
 
 @Injectable()
 export class ShopsService {
     constructor(
         @InjectRepository(Shop)
-        private readonly shopRepository: Repository<Shop>
+        private readonly shopRepository: Repository<Shop>,
+        @InjectRepository(Food)
+        private readonly foodRepository: Repository<Food>
     ) {}
 
-    create(createShopDto: CreateShopDto) {
-        const newShop = this.shopRepository.create({ ...createShopDto })
+    async create(createShopDto: CreateShopDto) {
+        // Check if createShopDto includes foods, if true find all those foods
+        const foods =
+            createShopDto.foods &&
+            (await Promise.all(
+                createShopDto.foods.map((food) => this.preloadFood(food))
+            ))
+        const newShop = this.shopRepository.create({
+            ...createShopDto,
+            ...foods,
+        })
         return this.shopRepository.save(newShop)
     }
 
     findAll() {
-        return this.shopRepository.find({ order: { id: "ASC" } })
+        return this.shopRepository.find({
+            order: { id: "ASC" },
+            relations: ["foods"],
+        })
     }
 
     async findOne(id: number) {
-        const shop = await this.shopRepository.findOne({ where: { id } })
-        if (!shop) throw new NotFoundException(`Shop #${id} cannot be found`)
+        const shop = await this.shopRepository.find({
+            where: { id },
+            relations: ["foods"],
+        })
+        if (!shop) throw new NotFoundException(`Shop #${id} cannot;; be found`)
         return shop
     }
 
     async update(id: number, updateShopDto: UpdateShopDto) {
+        // Check if createShopDto includes foods id, if true find all those foods
+        const foods =
+            updateShopDto.foods &&
+            (await Promise.all(
+                updateShopDto.foods.map((food) => this.preloadFood(food))
+            ))
         const shop = await this.shopRepository.preload({
             id,
             ...updateShopDto,
+            ...foods,
         })
         if (!shop)
             throw new NotFoundException(
                 `Shop #${id} cannot be updated because it doesn't exist`
             )
         return this.shopRepository.save(shop)
+    }
+
+    private async preloadFood(food: Food): Promise<Food> {
+        const existingFood = this.foodRepository.findOne({ where: { ...food } })
+        if (!existingFood)
+            throw new NotFoundException(`Food #${food} cannot be found`)
+        return this.foodRepository.create({ ...food })
     }
 
     async remove(id: number) {

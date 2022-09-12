@@ -1,9 +1,13 @@
+import { Shop } from "../../shops/entities/shop.entity"
+
 export class CreateFoodDto {
-    name: string;
+    readonly name: string
 
-    price: number;
+    readonly price: number
 
-    description: string;
+    readonly description: string
 
-    isAvailable: boolean;
+    readonly isAvailable: boolean
+
+    readonly shop: Shop
 }

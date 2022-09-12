@@ -1,17 +1,22 @@
-import { Column, Entity } from "typeorm";
-import { Common } from "../../common/entities/common.entity";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
+import { Common } from "../../common/entities/common.entity"
+import { Shop } from "../../shops/entities/shop.entity"
 
 @Entity()
 export class Food extends Common {
     @Column("varchar")
-    name: string;
+    name: string
 
     @Column("int")
-    price: number;
+    price: number
 
     @Column("text", { nullable: true })
-    description: string;
+    description: string
 
     @Column("boolean", { nullable: true })
-    isAvailable: boolean;
+    isAvailable: boolean
+
+    @ManyToOne(() => Shop, (shop) => shop.foods)
+    @JoinColumn({ name: "shop_id" })
+    shop: Shop
 }

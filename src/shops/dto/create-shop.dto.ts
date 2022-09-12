@@ -1,7 +1,11 @@
+import { Food } from "../../foods/entities/food.entity"
+
 export class CreateShopDto {
-    name: string
+    readonly name: string
 
-    location: string
+    readonly location: string
 
-    latitudeLongitude: string
+    readonly latitudeLongitude: string
+
+    readonly foods: Food[]
 }

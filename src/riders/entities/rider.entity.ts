@@ -8,7 +8,7 @@ interface previousPayments {
 
 @Entity()
 export class Rider extends Common {
-    @Column("varchar")
+    @Column("varchar", { unique: true })
     name: string
 
     @Column("varchar", { nullable: true, unique: true })
@@ -17,12 +17,9 @@ export class Rider extends Common {
     @Column("varchar", { unique: true })
     phoneNumber: string
 
-    @Column("float", { nullable: true })
-    overallTotalPayment: number
-
-    @Column("float", { nullable: true })
-    todayIncome: number
-
     @Column("json", { nullable: true })
     previousPayments: previousPayments[]
+
+    @Column("varchar", { nullable: true })
+    photoUrl: string
 }

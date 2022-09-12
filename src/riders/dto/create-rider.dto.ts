@@ -10,9 +10,5 @@ export class CreateRiderDto {
 
     readonly phoneNumber: string
 
-    readonly overallTotalPayment?: number
-
-    readonly todayIncome?: number
-
     readonly previousPayments?: previousPayment[]
 }

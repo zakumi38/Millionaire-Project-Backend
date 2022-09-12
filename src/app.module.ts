@@ -5,6 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { RidersModule } from "./riders/riders.module";
 import { FoodsModule } from "./foods/foods.module";
 import { ShopsModule } from "./shops/shops.module";
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -16,7 +17,7 @@ import { ShopsModule } from "./shops/shops.module";
     database: "millionaire-project-backend",
     autoLoadEntities: true,
     synchronize: true
-  }), RidersModule, FoodsModule, ShopsModule],
+  }), RidersModule, FoodsModule, ShopsModule, CustomersModule],
   controllers: [AppController],
   providers: [AppService]
 })

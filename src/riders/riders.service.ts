@@ -18,11 +18,17 @@ export class RidersService {
     }
 
     findAll() {
-        return this.riderRepository.find({ order: { id: "ASC" } })
+        return this.riderRepository.find({
+            order: { id: "ASC" },
+            relations: ["orders"],
+        })
     }
 
     async findOne(id: number) {
-        const rider = await this.riderRepository.findOne({ where: { id } })
+        const rider = await this.riderRepository.findOne({
+            where: { id },
+            relations: ["orders"],
+        })
         if (!rider) throw new NotFoundException(`Rider #${id} cannot be found`)
         return rider
     }

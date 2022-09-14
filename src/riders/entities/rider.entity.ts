@@ -1,5 +1,6 @@
-import { Column, Entity } from "typeorm"
+import { Column, Entity, OneToMany } from "typeorm"
 import { Common } from "../../common/entities/common.entity"
+import { Order } from "../../orders/entities/order.entity"
 
 interface previousPayments {
     date: string
@@ -22,4 +23,7 @@ export class Rider extends Common {
 
     @Column("varchar", { nullable: true })
     photoUrl: string
+
+    @OneToMany(() => Order, (order) => order.rider)
+    orders: Order[]
 }

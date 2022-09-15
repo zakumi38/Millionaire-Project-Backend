@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Shop } from "./entities/shop.entity"
 import { Repository } from "typeorm"
 import { Food } from "../foods/entities/food.entity"
+import CommonService from "../common/common.service"
 
 @Injectable()
 export class ShopsService {
@@ -30,10 +31,7 @@ export class ShopsService {
     }
 
     findAll() {
-        return this.shopRepository.find({
-            order: { id: "ASC" },
-            relations: ["foods"],
-        })
+        return CommonService.findAll(this.shopRepository, ["foods"])
     }
 
     async findOne(id: number) {

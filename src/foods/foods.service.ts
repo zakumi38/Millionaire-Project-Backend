@@ -4,6 +4,7 @@ import { UpdateFoodDto } from "./dto/update-food.dto"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Food } from "./entities/food.entity"
 import { Repository } from "typeorm"
+import CommonService from "../common/common.service"
 
 @Injectable()
 export class FoodsService {
@@ -18,10 +19,7 @@ export class FoodsService {
     }
 
     findAll() {
-        return this.foodRepository.find({
-            order: { id: "ASC" },
-            relations: ["shop"],
-        })
+        return CommonService.findAll(this.foodRepository, ["shop"])
     }
 
     async findOne(id: number) {

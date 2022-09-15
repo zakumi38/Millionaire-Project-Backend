@@ -16,12 +16,9 @@ export class OrdersService {
     ) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const foods = await this.foodRepository.findBy({
-            id: In(createOrderDto.orderedItems),
-        })
         const newOrder = this.orderRepository.create({
             ...createOrderDto,
-            orderedItems: foods,
+            orderedItems: await this.preloadFoods(createOrderDto.orderedItems),
         })
         return this.orderRepository.save(newOrder)
     }
@@ -43,9 +40,6 @@ export class OrdersService {
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
-        const foods = await this.foodRepository.findBy({
-            id: In(updateOrderDto.orderedItems),
-        })
         // Update the entities except customer
         const { rider, isCompleted, destination } = updateOrderDto
         const order = await this.orderRepository.preload({
@@ -53,7 +47,7 @@ export class OrdersService {
             rider,
             isCompleted,
             destination,
-            orderedItems: foods,
+            orderedItems: await this.preloadFoods(updateOrderDto.orderedItems),
         })
         if (!order)
             throw new NotFoundException(
@@ -71,5 +65,24 @@ export class OrdersService {
                 `Order #${id} have already been deleted or doesn't exist`
             )
         return this.orderRepository.remove(order)
+    }
+
+    private async preloadFoods(orderedItems: number[]): Promise<Food[]> {
+        // Find the orderedItems[] in food
+        const foods = await this.foodRepository.findBy({
+            id: In(orderedItems),
+        })
+        // For storing the ids that weren't able to find
+        let notFoundIds = []
+        // Check the ids that weren't able to find and add them to notFoundIds
+        orderedItems.map((id, index) => {
+            if (!foods[index] && id !== foods[index]?.id) notFoundIds.push(id)
+        })
+        // Throw error if not found foods exists
+        if (notFoundIds.length)
+            throw new NotFoundException(
+                `Ordered Item #${notFoundIds} cannot be found`
+            )
+        return foods
     }
 }

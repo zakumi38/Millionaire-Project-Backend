@@ -3,7 +3,7 @@ import { CreateOrderDto } from "./dto/create-order.dto"
 import { UpdateOrderDto } from "./dto/update-order.dto"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Order } from "./entities/order.entity"
-import { Repository } from "typeorm"
+import { In, Repository } from "typeorm"
 import { Food } from "../foods/entities/food.entity"
 
 @Injectable()
@@ -16,13 +16,9 @@ export class OrdersService {
     ) {}
 
     async create(createOrderDto: CreateOrderDto) {
-        const foods =
-            createOrderDto.orderedItems &&
-            (await Promise.all(
-                createOrderDto.orderedItems.map((food) =>
-                    this.preloadFood(food)
-                )
-            ))
+        const foods = await this.foodRepository.findBy({
+            id: In(createOrderDto.orderedItems),
+        })
         const newOrder = this.orderRepository.create({
             ...createOrderDto,
             orderedItems: foods,
@@ -47,14 +43,9 @@ export class OrdersService {
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto) {
-        const foods =
-            updateOrderDto.orderedItems &&
-            (await Promise.all(
-                updateOrderDto.orderedItems.map((food) =>
-                    this.preloadFood(food)
-                )
-            ))
-
+        const foods = await this.foodRepository.findBy({
+            id: In(updateOrderDto.orderedItems),
+        })
         // Update the entities except customer
         const { rider, isCompleted, destination } = updateOrderDto
         const order = await this.orderRepository.preload({
@@ -80,15 +71,5 @@ export class OrdersService {
                 `Order #${id} have already been deleted or doesn't exist`
             )
         return this.orderRepository.remove(order)
-    }
-
-    // This code is duplicated from shops.service.ts
-    private async preloadFood(food: number): Promise<Food> {
-        const existingFood = this.foodRepository.findOne({
-            where: { id: food },
-        })
-        if (!existingFood)
-            throw new NotFoundException(`Food #${food} cannot be found`)
-        return existingFood
     }
 }

@@ -41,19 +41,17 @@ export class OrdersService {
 
     async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
         // Update the entities except customer
+        // This is important
         const { rider, isCompleted, destination } = updateOrderDto
-        const order = await this.orderRepository.preload({
-            id,
+        const orderedItems = await this.preloadFoods(
+            updateOrderDto.orderedItems
+        )
+        return this.commonService.update(id, {
             rider,
             isCompleted,
             destination,
-            orderedItems: await this.preloadFoods(updateOrderDto.orderedItems),
+            orderedItems,
         })
-        if (!order)
-            throw new NotFoundException(
-                `Order #${id} cannot be updated because it doesn't exist`
-            )
-        return this.orderRepository.save(order)
     }
 
     async remove(id: number): Promise<Order> {

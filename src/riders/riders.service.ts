@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { Injectable } from "@nestjs/common"
 import { CreateRiderDto } from "./dto/create-rider.dto"
 import { UpdateRiderDto } from "./dto/update-rider.dto"
 import { InjectRepository } from "@nestjs/typeorm"
@@ -29,16 +29,8 @@ export class RidersService {
         return this.commonService.findOne(id, "orders")
     }
 
-    async update(id: number, updateRiderDto: UpdateRiderDto) {
-        const rider = await this.riderRepository.preload({
-            id,
-            ...updateRiderDto,
-        })
-        if (!rider)
-            throw new NotFoundException(
-                `Rider #${id} cannot be updated because it doesn't exist`
-            )
-        return this.riderRepository.save(rider)
+    async update(id: number, updateRiderDto: UpdateRiderDto):Promise<Rider> {
+        return this.commonService.update(id, updateRiderDto)
     }
 
     async remove(id: number): Promise<Rider> {

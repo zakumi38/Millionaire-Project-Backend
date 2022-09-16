@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { Injectable } from "@nestjs/common"
 import { CreateShopDto } from "./dto/create-shop.dto"
 import { UpdateShopDto } from "./dto/update-shop.dto"
 import { InjectRepository } from "@nestjs/typeorm"
@@ -38,30 +38,28 @@ export class ShopsService {
         return this.commonService.findOne(id, "foods")
     }
 
-    async update(id: number, updateShopDto: UpdateShopDto) {
+    async update(id: number, updateShopDto: UpdateShopDto): Promise<Shop> {
+        const { name, location, latitudeLongitude } = updateShopDto
+
         // Check if createShopDto includes foods id, if true find all those foods
         const foods =
             updateShopDto.foods &&
             (await Promise.all(
                 updateShopDto.foods.map((food) => this.preloadFood(food))
             ))
-        const shop = await this.shopRepository.preload({
-            id,
-            ...updateShopDto,
-            ...foods,
+        return this.commonService.update(id, {
+            name,
+            location,
+            latitudeLongitude,
+            foods,
         })
-        if (!shop)
-            throw new NotFoundException(
-                `Shop #${id} cannot be updated because it doesn't exist`
-            )
-        return this.shopRepository.save(shop)
     }
 
     private async preloadFood(food: Food): Promise<Food> {
+        /* Todo: needs to create foods when not exist and link with the existing food for updating  */
+
         const existingFood = this.foodRepository.findOne({ where: { ...food } })
-        if (!existingFood)
-            throw new NotFoundException(`Food #${food} cannot be found`)
-        return this.foodRepository.create({ ...food })
+        return existingFood && this.foodRepository.create({ ...food })
     }
 
     async remove(id: number): Promise<Shop> {

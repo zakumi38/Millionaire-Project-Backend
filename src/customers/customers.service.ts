@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { Injectable } from "@nestjs/common"
 import { CreateCustomerDto } from "./dto/create-customer.dto"
 import { UpdateCustomerDto } from "./dto/update-customer.dto"
 import { InjectRepository } from "@nestjs/typeorm"
@@ -29,14 +29,11 @@ export class CustomersService {
         return this.commonService.findOne(id)
     }
 
-    async update(id: number, updateCustomerDto: UpdateCustomerDto) {
-        const customer = await this.customerRepository.preload({
-            id,
-            ...updateCustomerDto,
-        })
-        if (!customer)
-            throw new NotFoundException(`Customer #${id} cannot be found`)
-        return this.customerRepository.save(customer)
+    async update(
+        id: number,
+        updateCustomerDto: UpdateCustomerDto
+    ): Promise<Customer> {
+        return this.commonService.update(id, updateCustomerDto)
     }
 
     async remove(id: number): Promise<Customer> {

@@ -48,6 +48,22 @@ export default class CommonService {
         return this.repository.save(newCommon)
     }
 
+    /*
+        Update the entities, 
+        second parameter is for the DTOs that need to be updated, can insert the whole DTOs or only the parts that need to be updated
+     */
+    async update(id: number, updateDto): Promise<any> {
+        const common = await this.repository.preload({
+            id,
+            ...updateDto,
+        })
+        if (!common)
+            throw new NotFoundException(
+                `${this.entityName} #${id} cannot be updated because it doesn't exist`
+            )
+        return this.repository.save(common)
+    }
+
     async remove(id: number): Promise<any> {
         const common = await this.repository.findOne({ where: { id } })
         if (!common)

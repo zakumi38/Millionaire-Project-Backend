@@ -12,7 +12,7 @@ export class RidersService extends CommonService {
         @InjectRepository(Rider)
         private readonly riderRepository: Repository<Rider>
     ) {
-        super(riderRepository)
+        super(riderRepository, "Rider")
     }
 
     create(createRiderDto: CreateRiderDto) {
@@ -45,14 +45,7 @@ export class RidersService extends CommonService {
         return this.riderRepository.save(rider)
     }
 
-    async remove(id: number) {
-        const rider = await this.riderRepository.findOne({
-            where: { id },
-        })
-        if (!rider)
-            throw new NotFoundException(
-                `Rider #${id} have already been deleted or doesn't exist`
-            )
-        return this.riderRepository.remove(rider)
+    async remove(id: number): Promise<Rider> {
+        return this.commonRemove(id)
     }
 }

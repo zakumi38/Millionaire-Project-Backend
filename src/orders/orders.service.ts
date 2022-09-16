@@ -15,7 +15,7 @@ export class OrdersService extends CommonService {
         @InjectRepository(Food)
         private readonly foodRepository: Repository<Food>
     ) {
-        super(orderRepository)
+        super(orderRepository, "Order")
     }
 
     async create(createOrderDto: CreateOrderDto) {
@@ -56,15 +56,8 @@ export class OrdersService extends CommonService {
         return this.orderRepository.save(order)
     }
 
-    async remove(id: number) {
-        const order = await this.orderRepository.findOne({
-            where: { id },
-        })
-        if (!order)
-            throw new NotFoundException(
-                `Order #${id} have already been deleted or doesn't exist`
-            )
-        return this.orderRepository.remove(order)
+    async remove(id: number): Promise<Order> {
+        return this.commonRemove(id)
     }
 
     private async preloadFoods(orderedItems: number[]): Promise<Food[]> {

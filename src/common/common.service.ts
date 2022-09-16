@@ -27,4 +27,13 @@ export default class CommonService {
             order: { id: order },
         })
     }
+
+    async commonRemove(id: number): Promise<any> {
+        const item = await this.repository.findOne({ where: { id } })
+        if (!item)
+            throw new NotFoundException(
+                `${this.entityName} #${id} have already deleted or doesn't exist`
+            )
+        return this.repository.remove(item)
+    }
 }

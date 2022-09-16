@@ -12,7 +12,7 @@ export class CustomersService extends CommonService {
         @InjectRepository(Customer)
         private readonly customerRepository: Repository<Customer>
     ) {
-        super(customerRepository)
+        super(customerRepository, "Customer")
     }
 
     create(createCustomerDto: CreateCustomerDto) {
@@ -45,14 +45,7 @@ export class CustomersService extends CommonService {
         return this.customerRepository.save(customer)
     }
 
-    async remove(id: number) {
-        const customer = await this.customerRepository.findOne({
-            where: { id },
-        })
-        if (!customer)
-            throw new NotFoundException(
-                `Customer #${id} have already been deleted or doesn't exist`
-            )
-        return this.customerRepository.remove(customer)
+    async remove(id: number): Promise<Customer> {
+        return this.commonRemove(id)
     }
 }

@@ -4,18 +4,22 @@ import { Customer } from "../customers/entities/customer.entity"
 import { Order } from "../orders/entities/order.entity"
 import { Rider } from "../riders/entities/rider.entity"
 import { Shop } from "../shops/entities/shop.entity"
+import { NotFoundException } from "@nestjs/common"
 
-type CommonRepository = Repository<Customer | Food | Order | Rider | Shop>
-
+type Entities = Customer | Food | Order | Rider | Shop
 export default class CommonService {
-    // To be used in findAll methods
-    static findAll(
-        repository: CommonRepository,
-        relations: string[],
+    private repository: Repository<Entities>
+
+    constructor(repository) {
+        this.repository = repository
+    }
+
+    commonFindAll(
+        relations: string | string[],
         order: FindOptionsOrderValue = "ASC"
     ): Promise<any[]> {
-        return repository.find({
-            relations,
+        return this.repository.find({
+            relations: typeof relations === "string" ? [relations] : relations,
             order: { id: order },
         })
     }

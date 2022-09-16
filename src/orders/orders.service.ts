@@ -21,11 +21,10 @@ export class OrdersService {
     }
 
     async create(createOrderDto: CreateOrderDto): Promise<Order> {
-        const newOrder = this.orderRepository.create({
-            ...createOrderDto,
-            orderedItems: await this.preloadFoods(createOrderDto.orderedItems),
-        })
-        return this.orderRepository.save(newOrder)
+        const orderedItems = await this.preloadFoods(
+            createOrderDto.orderedItems
+        )
+        return await this.commonService.create(createOrderDto, { orderedItems })
     }
 
     findAll(): Promise<Order[]> {

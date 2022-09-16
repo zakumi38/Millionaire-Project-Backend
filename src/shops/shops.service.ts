@@ -27,11 +27,7 @@ export class ShopsService {
             (await Promise.all(
                 createShopDto.foods.map((food) => this.preloadFood(food))
             ))
-        const newShop = this.shopRepository.create({
-            ...createShopDto,
-            ...foods,
-        })
-        return this.shopRepository.save(newShop)
+        return this.commonService.create(createShopDto, { foods })
     }
 
     findAll(): Promise<Shop[]> {

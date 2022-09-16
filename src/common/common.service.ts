@@ -40,9 +40,10 @@ export default class CommonService {
         return common
     }
 
-    create(createDto): Promise<any> {
+    create(createDto, otherDto?: object): Promise<any> {
         const newCommon = this.repository.create({
             ...createDto,
+            ...otherDto,
         })
         return this.repository.save(newCommon)
     }

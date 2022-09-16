@@ -8,10 +8,14 @@ import { NotFoundException } from "@nestjs/common"
 
 type Entities = Customer | Food | Order | Rider | Shop
 export default class CommonService {
-    private repository: Repository<Entities>
+    // Inserts the repository of the entity
+    private readonly repository: Repository<Entities>
+    // The name of the entity for showing error messages
+    private readonly entityName: string
 
-    constructor(repository) {
+    constructor(repository, entityName) {
         this.repository = repository
+        this.entityName = entityName
     }
 
     commonFindAll(

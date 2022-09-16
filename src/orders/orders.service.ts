@@ -8,14 +8,16 @@ import { Food } from "../foods/entities/food.entity"
 import CommonService from "../common/common.service"
 
 @Injectable()
-export class OrdersService extends CommonService {
+export class OrdersService {
+    private readonly commonService: CommonService
+
     constructor(
         @InjectRepository(Order)
         private readonly orderRepository: Repository<Order>,
         @InjectRepository(Food)
         private readonly foodRepository: Repository<Food>
     ) {
-        super(orderRepository, "Order")
+        this.commonService = new CommonService(orderRepository, "Order")
     }
 
     async create(createOrderDto: CreateOrderDto) {
@@ -27,7 +29,7 @@ export class OrdersService extends CommonService {
     }
 
     findAll(): Promise<Order[]> {
-        return this.commonFindAll(["customer", "orderedItems", "rider"])
+        return this.commonService.findAll(["customer", "orderedItems", "rider"])
     }
 
     async findOne(id: number) {
@@ -57,7 +59,7 @@ export class OrdersService extends CommonService {
     }
 
     async remove(id: number): Promise<Order> {
-        return this.commonRemove(id)
+        return this.commonService.remove(id)
     }
 
     private async preloadFoods(orderedItems: number[]): Promise<Food[]> {

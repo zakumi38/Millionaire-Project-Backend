@@ -7,12 +7,14 @@ import { Repository } from "typeorm"
 import CommonService from "../common/common.service"
 
 @Injectable()
-export class CustomersService extends CommonService {
+export class CustomersService {
+    private readonly commonService: CommonService
+
     constructor(
         @InjectRepository(Customer)
         private readonly customerRepository: Repository<Customer>
     ) {
-        super(customerRepository, "Customer")
+        this.commonService = new CommonService(customerRepository, "Customer")
     }
 
     create(createCustomerDto: CreateCustomerDto) {
@@ -23,7 +25,7 @@ export class CustomersService extends CommonService {
     }
 
     findAll(): Promise<Customer[]> {
-        return this.commonFindAll("orders")
+        return this.commonService.findAll("orders")
     }
 
     async findOne(id: number) {
@@ -46,6 +48,6 @@ export class CustomersService extends CommonService {
     }
 
     async remove(id: number): Promise<Customer> {
-        return this.commonRemove(id)
+        return this.commonService.remove(id)
     }
 }

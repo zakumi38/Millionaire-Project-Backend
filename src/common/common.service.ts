@@ -18,7 +18,7 @@ export default class CommonService {
         this.entityName = entityName
     }
 
-    commonFindAll(
+    findAll(
         relations: string | string[],
         order: FindOptionsOrderValue = "ASC"
     ): Promise<any[]> {
@@ -28,7 +28,7 @@ export default class CommonService {
         })
     }
 
-    async commonRemove(id: number): Promise<any> {
+    async remove(id: number): Promise<any> {
         const item = await this.repository.findOne({ where: { id } })
         if (!item)
             throw new NotFoundException(

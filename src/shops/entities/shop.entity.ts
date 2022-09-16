@@ -7,12 +7,12 @@ export class Shop extends Common {
     @Column("varchar")
     name: string
 
- ;   @Column("varchar")
+    @Column("varchar")
     location: string
 
- ;   @Column("varchar", { nullable: true })
+    @Column("varchar", { nullable: true })
     latitudeLongitude: string
 
- ;   @OneToMany(() => Food, (food) => food.shop, { cascade: true })
+    @OneToMany(() => Food, (food) => food.shop, { cascade: true })
     foods: Food[]
 }

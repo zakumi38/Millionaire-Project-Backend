@@ -13,7 +13,7 @@ export default class CommonService {
     // The name of the entity for showing error messages
     private readonly entityName: string
 
-    constructor(repository, entityName) {
+    constructor(repository: Repository<Entities>, entityName: string) {
         this.repository = repository
         this.entityName = entityName
     }
@@ -49,7 +49,7 @@ export default class CommonService {
     }
 
     /*
-        Update the entities, 
+        Update the entities,
         second parameter is for the DTOs that need to be updated, can insert the whole DTOs or only the parts that need to be updated
      */
     async update(id: number, updateDto): Promise<any> {

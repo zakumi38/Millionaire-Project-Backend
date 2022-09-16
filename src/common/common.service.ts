@@ -28,6 +28,18 @@ export default class CommonService {
         })
     }
 
+    async findOne(id: number, relations?: string | string[]): Promise<any> {
+        const common = await this.repository.findOne({
+            where: { id },
+            relations: typeof relations === "string" ? [relations] : relations,
+        })
+        if (!common)
+            throw new NotFoundException(
+                `${this.entityName} #${id} cannot be found`
+            )
+        return common
+    }
+
     create(createDto): Promise<any> {
         const newCommon = this.repository.create({
             ...createDto,

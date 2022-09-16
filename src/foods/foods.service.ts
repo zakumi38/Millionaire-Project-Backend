@@ -17,7 +17,7 @@ export class FoodsService {
         this.commonService = new CommonService(foodRepository, "Food")
     }
 
-    create(createFoodDto: CreateFoodDto):Promise<Food> {
+    create(createFoodDto: CreateFoodDto): Promise<Food> {
         return this.commonService.create(createFoodDto)
     }
 
@@ -25,10 +25,8 @@ export class FoodsService {
         return this.commonService.findAll("shop")
     }
 
-    async findOne(id: number) {
-        const food = await this.foodRepository.findOne({ where: { id } })
-        if (!food) throw new NotFoundException(`Food #${id} cannot be found`)
-        return food
+    async findOne(id: number): Promise<Food> {
+        return this.commonService.findOne(id, "shop")
     }
 
     async update(id: number, updateFoodDto: UpdateFoodDto) {

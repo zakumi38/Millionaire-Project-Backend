@@ -25,13 +25,8 @@ export class RidersService {
         return this.commonService.findAll("orders")
     }
 
-    async findOne(id: number) {
-        const rider = await this.riderRepository.findOne({
-            where: { id },
-            relations: ["orders"],
-        })
-        if (!rider) throw new NotFoundException(`Rider #${id} cannot be found`)
-        return rider
+    async findOne(id: number): Promise<Rider> {
+        return this.commonService.findOne(id, "orders")
     }
 
     async update(id: number, updateRiderDto: UpdateRiderDto) {

@@ -25,13 +25,8 @@ export class CustomersService {
         return this.commonService.findAll("orders")
     }
 
-    async findOne(id: number) {
-        const customer = await this.customerRepository.findOne({
-            where: { id },
-        })
-        if (!customer)
-            throw new NotFoundException(`Customer #${id} cannot be found`)
-        return customer
+    async findOne(id: number): Promise<Customer> {
+        return this.commonService.findOne(id)
     }
 
     async update(id: number, updateCustomerDto: UpdateCustomerDto) {

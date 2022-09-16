@@ -32,13 +32,12 @@ export class OrdersService {
         return this.commonService.findAll(["customer", "orderedItems", "rider"])
     }
 
-    async findOne(id: number) {
-        const order = await this.orderRepository.findOne({
-            where: { id },
-            relations: ["customer", "orderedItems", "rider"],
-        })
-        if (!order) throw new NotFoundException(`Order #${id} cannot be found`)
-        return order
+    async findOne(id: number): Promise<Order> {
+        return this.commonService.findOne(id, [
+            "customer",
+            "orderedItems",
+            "rider",
+        ])
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {

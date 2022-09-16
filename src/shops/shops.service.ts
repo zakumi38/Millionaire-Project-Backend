@@ -38,13 +38,8 @@ export class ShopsService {
         return this.commonService.findAll("foods")
     }
 
-    async findOne(id: number) {
-        const shop = await this.shopRepository.find({
-            where: { id },
-            relations: ["foods"],
-        })
-        if (!shop) throw new NotFoundException(`Shop #${id} cannot;; be found`)
-        return shop
+    async findOne(id: number): Promise<Shop> {
+        return this.commonService.findOne(id, "foods")
     }
 
     async update(id: number, updateShopDto: UpdateShopDto) {

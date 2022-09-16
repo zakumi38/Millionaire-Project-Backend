@@ -7,11 +7,13 @@ import { Repository } from "typeorm"
 import CommonService from "../common/common.service"
 
 @Injectable()
-export class CustomersService {
+export class CustomersService extends CommonService {
     constructor(
         @InjectRepository(Customer)
         private readonly customerRepository: Repository<Customer>
-    ) {}
+    ) {
+        super(customerRepository)
+    }
 
     create(createCustomerDto: CreateCustomerDto) {
         const newCustomer = this.customerRepository.create({
@@ -20,8 +22,8 @@ export class CustomersService {
         return this.customerRepository.save(newCustomer)
     }
 
-    findAll() {
-        return CommonService.findAll(this.customerRepository, ["orders"])
+    findAll(): Promise<Customer[]> {
+        return this.commonFindAll("orders")
     }
 
     async findOne(id: number) {

@@ -7,19 +7,21 @@ import { Repository } from "typeorm"
 import CommonService from "../common/common.service"
 
 @Injectable()
-export class RidersService {
+export class RidersService extends CommonService {
     constructor(
         @InjectRepository(Rider)
         private readonly riderRepository: Repository<Rider>
-    ) {}
+    ) {
+        super(riderRepository)
+    }
 
     create(createRiderDto: CreateRiderDto) {
         const newRider = this.riderRepository.create({ ...createRiderDto })
         return this.riderRepository.save(newRider)
     }
 
-    findAll() {
-        return CommonService.findAll(this.riderRepository, ["orders"])
+    findAll(): Promise<Rider[]> {
+        return this.commonFindAll("orders")
     }
 
     async findOne(id: number) {

@@ -8,13 +8,15 @@ import { Food } from "../foods/entities/food.entity"
 import CommonService from "../common/common.service"
 
 @Injectable()
-export class ShopsService {
+export class ShopsService extends CommonService {
     constructor(
         @InjectRepository(Shop)
         private readonly shopRepository: Repository<Shop>,
         @InjectRepository(Food)
         private readonly foodRepository: Repository<Food>
-    ) {}
+    ) {
+        super(shopRepository)
+    }
 
     async create(createShopDto: CreateShopDto) {
         // Check if createShopDto includes foods, if true find all those foods
@@ -30,8 +32,8 @@ export class ShopsService {
         return this.shopRepository.save(newShop)
     }
 
-    findAll() {
-        return CommonService.findAll(this.shopRepository, ["foods"])
+    findAll(): Promise<Shop[]> {
+        return this.commonFindAll("foods")
     }
 
     async findOne(id: number) {

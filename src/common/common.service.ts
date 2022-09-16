@@ -28,12 +28,19 @@ export default class CommonService {
         })
     }
 
+    create(createDto): Promise<any> {
+        const newCommon = this.repository.create({
+            ...createDto,
+        })
+        return this.repository.save(newCommon)
+    }
+
     async remove(id: number): Promise<any> {
-        const item = await this.repository.findOne({ where: { id } })
-        if (!item)
+        const common = await this.repository.findOne({ where: { id } })
+        if (!common)
             throw new NotFoundException(
                 `${this.entityName} #${id} have already deleted or doesn't exist`
             )
-        return this.repository.remove(item)
+        return this.repository.remove(common)
     }
 }

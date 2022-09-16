@@ -20,7 +20,7 @@ export class ShopsService {
         this.commonService = new CommonService(shopRepository, "Shop")
     }
 
-    async create(createShopDto: CreateShopDto) {
+    async create(createShopDto: CreateShopDto): Promise<Shop> {
         // Check if createShopDto includes foods, if true find all those foods
         const foods =
             createShopDto.foods &&

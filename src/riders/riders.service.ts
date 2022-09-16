@@ -17,9 +17,8 @@ export class RidersService {
         this.commonService = new CommonService(riderRepository, "Rider")
     }
 
-    create(createRiderDto: CreateRiderDto) {
-        const newRider = this.riderRepository.create({ ...createRiderDto })
-        return this.riderRepository.save(newRider)
+    create(createRiderDto: CreateRiderDto): Promise<Rider> {
+        return this.commonService.create(createRiderDto)
     }
 
     findAll(): Promise<Rider[]> {

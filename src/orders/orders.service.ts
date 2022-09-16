@@ -20,7 +20,7 @@ export class OrdersService {
         this.commonService = new CommonService(orderRepository, "Order")
     }
 
-    async create(createOrderDto: CreateOrderDto) {
+    async create(createOrderDto: CreateOrderDto): Promise<Order> {
         const newOrder = this.orderRepository.create({
             ...createOrderDto,
             orderedItems: await this.preloadFoods(createOrderDto.orderedItems),
@@ -41,7 +41,7 @@ export class OrdersService {
         return order
     }
 
-    async update(id: number, updateOrderDto: UpdateOrderDto) {
+    async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
         // Update the entities except customer
         const { rider, isCompleted, destination } = updateOrderDto
         const order = await this.orderRepository.preload({

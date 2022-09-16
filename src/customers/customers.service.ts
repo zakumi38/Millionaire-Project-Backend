@@ -17,11 +17,8 @@ export class CustomersService {
         this.commonService = new CommonService(customerRepository, "Customer")
     }
 
-    create(createCustomerDto: CreateCustomerDto) {
-        const newCustomer = this.customerRepository.create({
-            ...createCustomerDto,
-        })
-        return this.customerRepository.save(newCustomer)
+    create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
+        return this.commonService.create(createCustomerDto)
     }
 
     findAll(): Promise<Customer[]> {

@@ -17,9 +17,8 @@ export class FoodsService {
         this.commonService = new CommonService(foodRepository, "Food")
     }
 
-    create(createFoodDto: CreateFoodDto) {
-        const newRider = this.foodRepository.create({ ...createFoodDto })
-        return this.foodRepository.save(newRider)
+    create(createFoodDto: CreateFoodDto):Promise<Food> {
+        return this.commonService.create(createFoodDto)
     }
 
     findAll(): Promise<Food[]> {

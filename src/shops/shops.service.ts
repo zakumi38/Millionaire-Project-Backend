@@ -42,24 +42,55 @@ export class ShopsService {
         const { name, location, latitudeLongitude } = updateShopDto
 
         // Check if createShopDto includes foods id, if true find all those foods
-        const foods =
-            updateShopDto.foods &&
-            (await Promise.all(
-                updateShopDto.foods.map((food) => this.preloadFood(food))
-            ))
         return this.commonService.update(id, {
             name,
             location,
             latitudeLongitude,
-            foods,
+            foods: await this.preloadUpdatingFood(id, updateShopDto.foods),
         })
     }
 
     private async preloadFood(food: Food): Promise<Food> {
-        /* Todo: needs to create foods when not exist and link with the existing food for updating  */
-
         const existingFood = this.foodRepository.findOne({ where: { ...food } })
         return existingFood && this.foodRepository.create({ ...food })
+    }
+
+    /*
+    Filters all the incomingFoods from the UpdateShopDto
+    Entities with ids are updated,
+    Get entities that aren't in incomingFoods 
+    And without Ids are saved,
+     */
+    private async preloadUpdatingFood(
+        shopId: number,
+        incomingFoods
+    ): Promise<Food[]> {
+        // Handling Foods with Ids
+        const incomingFoodsWithIds: Food[] = incomingFoods.filter(
+            (food) => food.id
+        )
+
+        // Getting Foods that aren't in the incomingFoods excluding the incoming with ids
+        const existingFoods = await this.foodRepository.query(
+            `SELECT *
+             FROM "food"
+             WHERE (("food"."shop_id" = ${shopId}))
+               AND food.id NOT IN (${incomingFoodsWithIds.map(
+                   (item) => item.id
+               )})`
+        )
+
+        // Handling Foods without Ids
+        const createdFoodsWithoutIds = this.foodRepository.create(
+            incomingFoods.filter((food) => !food.id)
+        )
+        await this.foodRepository.save(createdFoodsWithoutIds)
+
+        return [
+            ...incomingFoodsWithIds,
+            ...createdFoodsWithoutIds,
+            ...existingFoods,
+        ]
     }
 
     async remove(id: number): Promise<Shop> {

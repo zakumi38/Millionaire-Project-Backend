@@ -16,7 +16,10 @@ export class Food extends Common {
     @Column("boolean", { nullable: true })
     isAvailable: boolean
 
-    @ManyToOne(() => Shop, (shop) => shop.foods, { onDelete: "CASCADE" })
+    @ManyToOne(() => Shop, (shop) => shop.foods, {
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+    })
     @JoinColumn({ name: "shop_id" })
     shop: Shop
 }

@@ -18,6 +18,9 @@ export class Rider extends Common {
     @Column("varchar", { unique: true })
     phoneNumber: string
 
+    @Column("varchar")
+    password: string
+
     @Column("json", { nullable: true })
     previousPayments: previousPayments[]
 

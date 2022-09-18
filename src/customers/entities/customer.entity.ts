@@ -24,6 +24,9 @@ export class Customer extends Common {
     @Column("json", { nullable: true })
     coordinate: Coordinate
 
+    @Column("varchar")
+    password: string
+
     @OneToMany(() => Order, (order) => order.customer)
     orders: Order[]
 }

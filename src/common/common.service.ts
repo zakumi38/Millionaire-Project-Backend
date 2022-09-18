@@ -6,14 +6,15 @@ import { Rider } from "../riders/entities/rider.entity"
 import { Shop } from "../shops/entities/shop.entity"
 import { NotFoundException } from "@nestjs/common"
 
-type Entities = Customer | Food | Order | Rider | Shop
+type Entity = Customer | Food | Order | Rider | Shop
+type UserEntity = Customer | Rider
 export default class CommonService {
     // Inserts the repository of the entity
-    private readonly repository: Repository<Entities>
+    private readonly repository: Repository<Entity>
     // The name of the entity for showing error messages
     private readonly entityName: string
 
-    constructor(repository: Repository<Entities>, entityName: string) {
+    constructor(repository: Repository<Entity>, entityName: string) {
         this.repository = repository
         this.entityName = entityName
     }
@@ -40,7 +41,7 @@ export default class CommonService {
         return common
     }
 
-    create(createDto, otherDto?: object): Promise<any> {
+    create(createDto: any, otherDto?: object): Promise<any> {
         const newCommon = this.repository.create({
             ...createDto,
             ...otherDto,
@@ -52,7 +53,7 @@ export default class CommonService {
         Update the entities,
         second parameter is for the DTOs that need to be updated, can insert the whole DTOs or only the parts that need to be updated
      */
-    async update(id: number, updateDto): Promise<any> {
+    async update(id: number, updateDto: any): Promise<any> {
         const common = await this.repository.preload({
             id,
             ...updateDto,
@@ -71,5 +72,10 @@ export default class CommonService {
                 `${this.entityName} #${id} have already deleted or doesn't exist`
             )
         return this.repository.remove(common)
+    }
+    // Find By Email Method
+    async findByEmail(email: string): Promise<UserEntity> {
+        const user = await this.repository.findOne({ where: { email: email } })
+        return user as UserEntity
     }
 }

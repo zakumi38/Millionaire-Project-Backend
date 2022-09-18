@@ -22,13 +22,17 @@ export class CreateCustomerDto {
     @IsString()
     readonly phoneNumber: string
 
+    @IsNotEmpty()
+    @IsString()
+    readonly password: string
+
     @IsOptional()
     @IsEmail({ message: "Email is not in email format" })
-    readonly email?: string
+    readonly email: string
 
     @IsOptional()
     @IsString()
-    readonly location?: string
+    readonly location: string
 
     // TODO: ValidateNested Not Working for this one
     @IsOptional()

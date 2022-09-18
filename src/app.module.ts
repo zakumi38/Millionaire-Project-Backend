@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common"
+import { ConfigModule } from "@nestjs/config"
 import { AppController } from "./app.controller"
 import { AppService } from "./app.service"
 import { TypeOrmModule } from "@nestjs/typeorm"
@@ -7,16 +8,18 @@ import { FoodsModule } from "./foods/foods.module"
 import { ShopsModule } from "./shops/shops.module"
 import { CustomersModule } from "./customers/customers.module"
 import { OrdersModule } from "./orders/orders.module"
+import { AuthModule } from "./auth/auth.module"
 
 @Module({
     imports: [
+        ConfigModule.forRoot({ envFilePath: ".local.env" }),
         TypeOrmModule.forRoot({
-            type: "postgres",
-            host: "localhost",
-            port: 5432,
-            username: "postgres",
-            password: "root",
-            database: "millionaire-project-backend",
+            type: process.env.DB_TYPE as "postgres",
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT),
+            username: process.env.DB_USERNAME,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
             autoLoadEntities: true,
             synchronize: true,
         }),
@@ -25,6 +28,7 @@ import { OrdersModule } from "./orders/orders.module"
         ShopsModule,
         CustomersModule,
         OrdersModule,
+        AuthModule,
     ],
     controllers: [AppController],
     providers: [AppService],

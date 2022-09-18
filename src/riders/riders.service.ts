@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Rider } from "./entities/rider.entity"
 import { Repository } from "typeorm"
 import CommonService from "../common/common.service"
+import * as argon2 from "argon2"
 
 @Injectable()
 export class RidersService {
@@ -17,23 +18,37 @@ export class RidersService {
         this.commonService = new CommonService(riderRepository, "Rider")
     }
 
-    create(createRiderDto: CreateRiderDto): Promise<Rider> {
-        return this.commonService.create(createRiderDto)
+    async create(createRiderDto: CreateRiderDto) {
+        const hashPassword = await argon2.hash(createRiderDto.password)
+        const createRiderDtoWtihHash = {
+            ...createRiderDto,
+            password: hashPassword,
+        }
+        const { password, ...otherCredentials } = await this.commonService
+            .create(createRiderDtoWtihHash)
+            .catch((err) => {
+                console.log(err)
+                throw new Error("Something Went Wrong")
+            })
+        return otherCredentials
     }
 
     findAll(): Promise<Rider[]> {
         return this.commonService.findAll("orders")
     }
 
-    async findOne(id: number): Promise<Rider> {
+    async findOne(id: number) {
         return this.commonService.findOne(id, "orders")
     }
 
-    async update(id: number, updateRiderDto: UpdateRiderDto): Promise<Rider> {
+    async update(id: number, updateRiderDto: UpdateRiderDto) {
         return this.commonService.update(id, updateRiderDto)
     }
 
-    async remove(id: number): Promise<Rider> {
+    async remove(id: number) {
         return this.commonService.remove(id)
+    }
+    async findByEmail(email: string) {
+        return this.commonService.findByEmail(email)
     }
 }

@@ -58,7 +58,7 @@ export class ShopsService {
      */
     private async preloadUpdatingFood(
         shopId: number,
-        incomingFoods
+        incomingFoods: Food[]
     ): Promise<Food[]> {
         // Handling Foods with Ids
         const incomingFoodsWithIds: Food[] = incomingFoods.filter(

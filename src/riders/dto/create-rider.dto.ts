@@ -17,9 +17,13 @@ export class CreateRiderDto {
     @IsString()
     readonly name: string
 
+    @IsNotEmpty()
+    @IsString()
+    readonly password: string
+
     @IsOptional()
     @IsEmail({ message: "Email is not in email format" })
-    readonly email?: string
+    readonly email: string
 
     @IsNotEmpty()
     @IsString()

@@ -70,15 +70,17 @@ export class ShopsService {
             (food) => food.id
         )
 
-        // Getting Foods that aren't in the incomingFoods excluding the incoming with ids
-        const existingFoods = await this.foodRepository.query(
-            `SELECT *
-             FROM "food"
-             WHERE (("food"."shop_id" = ${shopId}))
-               AND food.id NOT IN (${incomingFoodsWithIds.map(
-                   (item) => item.id
-               )})`
-        )
+        // Getting Foods that aren't in the incomingFoods excluding the incomingFoods with ids
+        const existingFoods = await this.foodRepository
+            .createQueryBuilder("food")
+            .where("food.shop_id = :id", { id: shopId })
+            .andWhere(
+                `food.id NOT IN (${incomingFoodsWithIds.map(
+                    (item) => item.id
+                )})`
+            )
+            .orderBy("food.id")
+            .getMany()
 
         // Handling Foods without Ids
         const createdFoodsWithoutIds = this.foodRepository.create(

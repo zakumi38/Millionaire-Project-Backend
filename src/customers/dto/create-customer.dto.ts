@@ -4,7 +4,7 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
-    ValidateNested
+    ValidateNested,
 } from "class-validator"
 import { Type } from "class-transformer"
 

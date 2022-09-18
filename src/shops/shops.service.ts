@@ -46,10 +46,14 @@ export class ShopsService {
         })
     }
 
+    async remove(id: number): Promise<Shop> {
+        return this.commonService.remove(id)
+    }
+
     /*
     Filters all the incomingFoods from the UpdateShopDto
     Entities with ids are updated,
-    Get entities that aren't in incomingFoods 
+    Get entities that aren't in incomingFoods
     And without Ids are saved,
      */
     private async preloadUpdatingFood(
@@ -84,9 +88,5 @@ export class ShopsService {
             ...createdFoodsWithoutIds,
             ...existingFoods,
         ]
-    }
-
-    async remove(id: number): Promise<Shop> {
-        return this.commonService.remove(id)
     }
 }

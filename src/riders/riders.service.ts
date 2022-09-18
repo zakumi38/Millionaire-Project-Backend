@@ -29,7 +29,7 @@ export class RidersService {
         return this.commonService.findOne(id, "orders")
     }
 
-    async update(id: number, updateRiderDto: UpdateRiderDto):Promise<Rider> {
+    async update(id: number, updateRiderDto: UpdateRiderDto): Promise<Rider> {
         return this.commonService.update(id, updateRiderDto)
     }
 

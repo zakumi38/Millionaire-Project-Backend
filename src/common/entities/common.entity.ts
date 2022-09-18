@@ -1,10 +1,10 @@
-import { CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
 export class Common {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number
 
-  @CreateDateColumn()
-  createdDate: Date;
+    @CreateDateColumn()
+    createdDate: Date
 }

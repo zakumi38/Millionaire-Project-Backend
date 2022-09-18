@@ -1,14 +1,31 @@
-import { Customer } from "../../customers/entities/customer.entity"
-import { Rider } from "../../riders/entities/rider.entity"
+import {
+    IsArray,
+    IsBoolean,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+} from "class-validator"
 
 export class CreateOrderDto {
-    readonly customer: Customer
+    @IsNotEmpty()
+    @IsNumber()
+    readonly customer: number
 
-    readonly rider?: Rider
+    @IsOptional()
+    @IsNumber()
+    readonly rider?: number
 
+    @IsNotEmpty()
+    @IsArray()
+    @IsNumber({}, { each: true })
     readonly orderedItems: number[]
 
+    @IsNotEmpty()
+    @IsString()
     readonly destination: string
 
+    @IsOptional()
+    @IsBoolean({ each: true })
     readonly isCompleted?: boolean = false
 }

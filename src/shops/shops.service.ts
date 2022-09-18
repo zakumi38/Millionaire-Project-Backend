@@ -21,13 +21,9 @@ export class ShopsService {
     }
 
     async create(createShopDto: CreateShopDto): Promise<Shop> {
-        // Check if createShopDto includes foods, if true find all those foods
-        const foods =
-            createShopDto.foods &&
-            (await Promise.all(
-                createShopDto.foods.map((food) => this.preloadFood(food))
-            ))
-        return this.commonService.create(createShopDto, { foods })
+        return this.commonService.create(createShopDto, {
+            ...createShopDto.foods,
+        })
     }
 
     findAll(): Promise<Shop[]> {
@@ -48,11 +44,6 @@ export class ShopsService {
             latitudeLongitude,
             foods: await this.preloadUpdatingFood(id, updateShopDto.foods),
         })
-    }
-
-    private async preloadFood(food: Food): Promise<Food> {
-        const existingFood = this.foodRepository.findOne({ where: { ...food } })
-        return existingFood && this.foodRepository.create({ ...food })
     }
 
     /*

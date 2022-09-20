@@ -5,8 +5,19 @@ import { Order } from "../orders/entities/order.entity"
 import { Rider } from "../riders/entities/rider.entity"
 import { Shop } from "../shops/entities/shop.entity"
 import { NotFoundException } from "@nestjs/common"
+import { UpdateCustomerDto } from "../customers/dto/update-customer.dto"
+import { UpdateFoodDto } from "../foods/dto/update-food.dto"
+import { UpdateOrderDto } from "../orders/dto/update-order.dto"
+import { UpdateRiderDto } from "../riders/dto/update-rider.dto"
+import { UpdateShopDto } from "../shops/dto/update-shop.dto"
 
 type Entity = Customer | Food | Order | Rider | Shop
+type UpdateDTOs =
+    | UpdateCustomerDto
+    | UpdateFoodDto
+    | UpdateOrderDto
+    | UpdateRiderDto
+    | UpdateShopDto
 type UserEntity = Customer | Rider
 export default class CommonService {
     // Inserts the repository of the entity
@@ -19,6 +30,11 @@ export default class CommonService {
         this.entityName = entityName
     }
 
+    /**
+     * Find all the related items in the database
+     * @param relations Relations of those items
+     * @param order The order in which the items will be sorted
+     */
     findAll(
         relations: string | string[],
         order: FindOptionsOrderValue = "ASC"
@@ -29,6 +45,11 @@ export default class CommonService {
         })
     }
 
+    /**
+     * Find an item in the database
+     * @param id Id of the item
+     * @param relations Relations of that item
+     */
     async findOne(id: number, relations?: string | string[]): Promise<any> {
         const common = await this.repository.findOne({
             where: { id },
@@ -41,6 +62,11 @@ export default class CommonService {
         return common
     }
 
+    /**
+     * Create an entity to the database
+     * @param createDto Insert CreateDto
+     * @param otherDto For the DTOs that are preloaded or modified before creating
+     */
     create(createDto: any, otherDto?: object): Promise<any> {
         const newCommon = this.repository.create({
             ...createDto,
@@ -49,11 +75,12 @@ export default class CommonService {
         return this.repository.save(newCommon)
     }
 
-    /*
-        Update the entities,
-        second parameter is for the DTOs that need to be updated, can insert the whole DTOs or only the parts that need to be updated
+    /**
+     * Update an entity from the database
+     * @param id
+     * @param updateDto The DTOs that are needed to be updated, can insert the whole DTOs or only the parts that need to be updated
      */
-    async update(id: number, updateDto: any): Promise<any> {
+    async update(id: number, updateDto: UpdateDTOs): Promise<any> {
         const common = await this.repository.preload({
             id,
             ...updateDto,
@@ -65,6 +92,10 @@ export default class CommonService {
         return this.repository.save(common)
     }
 
+    /**
+     * Remove or delete an entity from the database
+     * @param id
+     */
     async remove(id: number): Promise<any> {
         const common = await this.repository.findOne({ where: { id } })
         if (!common)
@@ -73,6 +104,7 @@ export default class CommonService {
             )
         return this.repository.remove(common)
     }
+
     // Find By Email Method
     async findByEmail(email: string): Promise<UserEntity> {
         const user = await this.repository.findOne({ where: { email: email } })

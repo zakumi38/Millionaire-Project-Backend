@@ -5,7 +5,6 @@ import { UnauthorizedException } from "@nestjs/common/exceptions"
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
     canActivate(context: ExecutionContext) {
-        console.log(super.canActivate(context))
         return super.canActivate(context)
     }
 

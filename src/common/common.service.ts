@@ -78,4 +78,18 @@ export default class CommonService {
         const user = await this.repository.findOne({ where: { email: email } })
         return user as UserEntity
     }
+    async findByToken(
+        token: string,
+        type: "accessToken" | "refreshToken"
+    ): Promise<UserEntity> {
+        const user =
+            type === "accessToken"
+                ? await this.repository.findOne({
+                      where: { accessToken: token },
+                  })
+                : await this.repository.findOne({
+                      where: { refreshToken: token },
+                  })
+        return user as UserEntity
+    }
 }

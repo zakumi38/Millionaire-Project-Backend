@@ -6,11 +6,13 @@ import {
     Param,
     Patch,
     Post,
+    UseGuards,
 } from "@nestjs/common"
 import { FoodsService } from "./foods.service"
 import { CreateFoodDto } from "./dto/create-food.dto"
 import { UpdateFoodDto } from "./dto/update-food.dto"
-
+import { LocalGuard } from "src/auth/guards/local-strategy.guard"
+@UseGuards(LocalGuard)
 @Controller("foods")
 export class FoodsController {
     constructor(private readonly foodsService: FoodsService) {}

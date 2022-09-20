@@ -6,11 +6,13 @@ import {
     Param,
     Patch,
     Post,
+    UseGuards,
 } from "@nestjs/common"
 import { RidersService } from "./riders.service"
 import { CreateRiderDto } from "./dto/create-rider.dto"
 import { UpdateRiderDto } from "./dto/update-rider.dto"
-
+import { LocalGuard } from "src/auth/guards/local-strategy.guard"
+@UseGuards(LocalGuard)
 @Controller("riders")
 export class RidersController {
     constructor(private readonly ridersService: RidersService) {}

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from "typeorm"
+import { Column, Entity, OneToMany, OneToOne } from "typeorm"
 import { Common } from "../../common/entities/common.entity"
 import { Order } from "../../orders/entities/order.entity"
 
@@ -21,12 +21,24 @@ export class Rider extends Common {
     @Column("varchar")
     password: string
 
+    @Column("int", { default: 0 })
+    todayIncome: number
+
     @Column("json", { nullable: true })
     previousPayments: previousPayments[]
 
     @Column("varchar", { nullable: true })
     photoUrl: string
 
-    @OneToMany(() => Order, (order) => order.rider)
-    orders: Order[]
+    @Column("varchar", { nullable: true })
+    accessToken: string
+
+    @Column("varchar", { nullable: true })
+    refreshToken: string
+
+    @OneToMany(() => Order, (order) => order.rider, { nullable: true })
+    completedOrders: Order[]
+
+    @OneToOne(() => Order, (order) => order.rider, { nullable: true })
+    currentOrder: Order
 }

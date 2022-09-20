@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common"
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
 import { AppController } from "./app.controller"
 import { AppService } from "./app.service"
@@ -9,6 +9,7 @@ import { ShopsModule } from "./shops/shops.module"
 import { CustomersModule } from "./customers/customers.module"
 import { OrdersModule } from "./orders/orders.module"
 import { AuthModule } from "./auth/auth.module"
+import { TokenMiddleware } from "./auth/middlewares/token-attach.middleware"
 
 @Module({
     imports: [
@@ -33,4 +34,8 @@ import { AuthModule } from "./auth/auth.module"
     controllers: [AppController],
     providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(TokenMiddleware).forRoutes(AppController)
+    }
+}

@@ -23,12 +23,12 @@ export class LocalStrategy extends PassportStrategy(
         super({ usernameField: "email" })
     }
 
-    async validate(email: string, inputPassword: string): Promise<any> {
-        const user = await this.riderService.findByEmail(email)
+    async validate(inputEmail: string, inputPassword: string): Promise<any> {
+        const user = await this.riderService.findByEmail(inputEmail)
         if (!user) throw new UnauthorizedException()
         const verifier = await argon2.verify(user.password, inputPassword)
         if (!verifier) throw new UnauthorizedException()
-        const { password, ...infos } = user
-        return infos
+        const { name, email, id, phoneNumber } = user
+        return { name, email, id, phoneNumber }
     }
 }

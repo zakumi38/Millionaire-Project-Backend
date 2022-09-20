@@ -6,7 +6,7 @@ import {
     IsOptional,
     IsString,
 } from "class-validator"
-
+import { Order } from "../../orders/entities/order.entity"
 interface previousPayment {
     date: string
     amount: number
@@ -29,8 +29,22 @@ export class CreateRiderDto {
     @IsString()
     readonly phoneNumber: string
 
+    @IsString()
+    readonly accessToken: string
+
+    @IsString()
+    readonly refreshToken: string
+
     @IsOptional()
     @IsArray()
     @IsObject({ each: true })
     readonly previousPayments?: previousPayment[]
+
+    @IsOptional()
+    @IsArray()
+    @IsObject({ each: true })
+    readonly completedOrders?: Order[]
+
+    @IsOptional()
+    readonly currentOrder?: Order
 }

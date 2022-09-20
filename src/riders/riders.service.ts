@@ -27,18 +27,20 @@ export class RidersService {
         const { password, ...otherCredentials } = await this.commonService
             .create(createRiderDtoWtihHash)
             .catch((err) => {
-                console.log(err)
                 throw new Error("Something Went Wrong")
             })
         return otherCredentials
     }
 
     findAll(): Promise<Rider[]> {
-        return this.commonService.findAll("orders")
+        return this.commonService.findAll("completedOrders")
     }
 
     async findOne(id: number) {
-        return this.commonService.findOne(id, "orders")
+        return this.commonService.findOne(id, [
+            "currentOrder",
+            "completedOrders",
+        ])
     }
 
     async update(id: number, updateRiderDto: UpdateRiderDto) {
@@ -50,5 +52,8 @@ export class RidersService {
     }
     async findByEmail(email: string) {
         return this.commonService.findByEmail(email)
+    }
+    async findByToken(token: string, type: "accessToken" | "refreshToken") {
+        return this.commonService.findByToken(token, type)
     }
 }

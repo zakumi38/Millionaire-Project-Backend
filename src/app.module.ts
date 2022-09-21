@@ -36,6 +36,9 @@ import { TokenMiddleware } from "./auth/middlewares/token-attach.middleware"
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(TokenMiddleware).forRoutes(AppController)
+        consumer
+            .apply(TokenMiddleware)
+            .exclude("/login")
+            .forRoutes(AppController)
     }
 }

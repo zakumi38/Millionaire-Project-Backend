@@ -29,9 +29,11 @@ export class CreateRiderDto {
     @IsString()
     readonly phoneNumber: string
 
+    @IsOptional()
     @IsString()
     readonly accessToken: string
 
+    @IsOptional()
     @IsString()
     readonly refreshToken: string
 

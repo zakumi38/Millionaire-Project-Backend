@@ -31,9 +31,12 @@ export class Order extends Common {
     @Column("varchar")
     destination: string
 
-    @Column("float")
+    @Column("float", { nullable: true })
     deliveryPercentage: number
 
     @Column("boolean", { default: false, nullable: true })
     isCompleted: boolean
+
+    @Column("boolean", { default: false, nullable: true })
+    isCanceled: boolean
 }

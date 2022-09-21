@@ -80,7 +80,7 @@ export default class CommonService {
      * @param id
      * @param updateDto The DTOs that are needed to be updated, can insert the whole DTOs or only the parts that need to be updated
      */
-    async update(id: number, updateDto: UpdateDTOs): Promise<any> {
+    async update(id: number, updateDto: any): Promise<any> {
         const common = await this.repository.preload({
             id,
             ...updateDto,

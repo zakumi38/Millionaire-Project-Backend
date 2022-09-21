@@ -28,4 +28,8 @@ export class CreateOrderDto {
     @IsOptional()
     @IsBoolean({ each: true })
     readonly isCompleted?: boolean = false
+
+    @IsOptional()
+    @IsBoolean()
+    readonly isCanceled?: boolean = false
 }

@@ -3,9 +3,11 @@ import {
     IsBoolean,
     IsNotEmpty,
     IsNumber,
+    IsObject,
     IsOptional,
     IsString,
 } from "class-validator"
+import { Quantity } from "../entities/order.entity"
 
 export class CreateOrderDto {
     @IsNotEmpty()
@@ -20,6 +22,10 @@ export class CreateOrderDto {
     @IsArray()
     @IsNumber({}, { each: true })
     readonly orderedItems: number[]
+
+    @IsNotEmpty()
+    @IsObject({ each: true })
+    readonly quantities: Quantity[]
 
     @IsNotEmpty()
     @IsString()

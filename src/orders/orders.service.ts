@@ -6,6 +6,30 @@ import { Order } from "./entities/order.entity"
 import { In, Repository } from "typeorm"
 import { Food } from "../foods/entities/food.entity"
 import CommonService from "../common/common.service"
+import { Customer } from "../customers/entities/customer.entity"
+import { Rider } from "../riders/entities/rider.entity"
+import { Shop } from "../shops/entities/shop.entity"
+
+interface ModifiedOrderedItems {
+    isAvailable: boolean
+    quantity: number
+    shop: Shop
+    createdDate: Date
+    price: number
+    name: string
+    description: string
+    id: number
+}
+
+export interface ModifiedOrder {
+    id: number
+    customer: Customer
+    rider: Rider
+    orderedItems: ModifiedOrderedItems[]
+    destination: string
+    isCompleted: boolean
+    isCanceled: boolean
+}
 
 @Injectable()
 export class OrdersService {
@@ -20,11 +44,15 @@ export class OrdersService {
         this.commonService = new CommonService(orderRepository, "Order")
     }
 
-    async create(createOrderDto: CreateOrderDto): Promise<Order> {
-        const orderedItems = await this.preloadFoods(
+    async create(createOrderDto: CreateOrderDto) {
+        const preloadedOrderedItems = await this.preloadFoods(
             createOrderDto.orderedItems
         )
-        return await this.commonService.create(createOrderDto, { orderedItems })
+        return this.modifyOrder(
+            await this.commonService.create(createOrderDto, {
+                orderedItems: preloadedOrderedItems,
+            })
+        )
     }
 
     findAll(): Promise<Order[]> {
@@ -75,5 +103,53 @@ export class OrdersService {
                 `Ordered Item #${notFoundIds} cannot be found`
             )
         return foods
+    }
+
+    /**
+     * Merge the separated OrderItems with Quantities
+     * @param quantities The quantity entity
+     * @param orderedItems The orderedItems entity
+     * @private
+     */
+    private async mergeOrderItemsWithQuantities(
+        quantities,
+        orderedItems
+    ): Promise<ModifiedOrderedItems[]> {
+        return quantities.map((quantity) => {
+            const createdOrderedItem: Food = orderedItems.find(
+                (item) => item.id === quantity.id
+            )
+            return { ...quantity, ...createdOrderedItem }
+        })
+    }
+
+    /**
+     * Create a modified order to return
+     * @param order
+     * @private
+     */
+    private async modifyOrder(order: Order): Promise<ModifiedOrder> {
+        const {
+            id,
+            customer,
+            rider,
+            orderedItems,
+            quantities,
+            destination,
+            isCompleted,
+            isCanceled,
+        } = order
+        return {
+            id,
+            customer,
+            rider,
+            orderedItems: await this.mergeOrderItemsWithQuantities(
+                quantities,
+                orderedItems
+            ),
+            destination,
+            isCompleted,
+            isCanceled,
+        }
     }
 }

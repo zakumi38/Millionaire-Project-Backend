@@ -11,6 +11,11 @@ import {
 import { Rider } from "../../riders/entities/rider.entity"
 import { Food } from "../../foods/entities/food.entity"
 
+export interface Quantity {
+    id: number
+    quantity: number
+}
+
 @Entity()
 export class Order extends Common {
     @ManyToOne(() => Customer, (customer) => customer.orders)
@@ -27,6 +32,9 @@ export class Order extends Common {
     @ManyToMany(() => Food)
     @JoinTable()
     orderedItems: Food[]
+
+    @Column("json")
+    quantities: Quantity[]
 
     @Column("varchar")
     destination: string

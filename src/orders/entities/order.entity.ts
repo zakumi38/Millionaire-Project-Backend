@@ -31,10 +31,10 @@ export class Order extends Common {
 
     @ManyToMany(() => Food)
     @JoinTable()
-    orderedItems: Food[]
+    foods: Food[]
 
     @Column("json")
-    quantities: Quantity[]
+    orderedItems: Quantity[]
 
     @Column("varchar")
     destination: string

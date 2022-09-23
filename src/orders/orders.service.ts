@@ -29,6 +29,9 @@ export interface ModifiedOrder {
     destination: string
     isCompleted: boolean
     isCanceled: boolean
+    currentOrder: Order
+    createdDate: Date
+    deliveryPercentage: number
 }
 
 @Injectable()
@@ -45,26 +48,24 @@ export class OrdersService {
     }
 
     async create(createOrderDto: CreateOrderDto) {
-        const preloadedOrderedItems = await this.preloadFoods(
-            createOrderDto.orderedItems
+        const orderedFoodIds = createOrderDto.orderedItems.map(
+            (item) => item.id
         )
+        const preloadedOrderedFoods = await this.preloadFoods(orderedFoodIds)
         return this.modifyOrder(
             await this.commonService.create(createOrderDto, {
-                orderedItems: preloadedOrderedItems,
+                foods: preloadedOrderedFoods,
+                orderedItems: createOrderDto.orderedItems,
             })
         )
     }
 
     findAll(): Promise<Order[]> {
-        return this.commonService.findAll(["customer", "orderedItems", "rider"])
+        return this.commonService.findAll(["customer", "foods", "rider"])
     }
 
     async findOne(id: number): Promise<Order> {
-        return this.commonService.findOne(id, [
-            "customer",
-            "orderedItems",
-            "rider",
-        ])
+        return this.commonService.findOne(id, ["customer", "foods", "rider"])
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
@@ -86,13 +87,13 @@ export class OrdersService {
         return this.commonService.remove(id)
     }
 
-    private async preloadFoods(orderedItems: number[]): Promise<Food[]> {
+    private async preloadFoods(orderedItems): Promise<Food[]> {
         // Find the orderedItems[] in food
         const foods = await this.foodRepository.findBy({
             id: In(orderedItems),
         })
-        // For storing the ids that weren't able to find
-        let notFoundIds = []
+        // For storing the ids tht weren't able to find
+        const notFoundIds = []
         // Check the ids that weren't able to find and add them to notFoundIds
         orderedItems.map((id, index) => {
             if (!foods[index] && id !== foods[index]?.id) notFoundIds.push(id)
@@ -107,16 +108,16 @@ export class OrdersService {
 
     /**
      * Merge the separated OrderItems with Quantities
-     * @param quantities The quantity entity
-     * @param orderedItems The orderedItems entity
+     * @param orderedItems The quantity entity
+     * @param foods The orderedItems entity
      * @private
      */
     private async mergeOrderItemsWithQuantities(
-        quantities,
-        orderedItems
+        orderedItems,
+        foods
     ): Promise<ModifiedOrderedItems[]> {
-        return quantities.map((quantity) => {
-            const createdOrderedItem: Food = orderedItems.find(
+        return orderedItems.map((quantity) => {
+            const createdOrderedItem: Food = foods.find(
                 (item) => item.id === quantity.id
             )
             return { ...quantity, ...createdOrderedItem }
@@ -131,25 +132,31 @@ export class OrdersService {
     private async modifyOrder(order: Order): Promise<ModifiedOrder> {
         const {
             id,
-            customer,
+            isCanceled,
+            isCompleted,
+            destination,
             rider,
             orderedItems,
-            quantities,
-            destination,
-            isCompleted,
-            isCanceled,
+            customer,
+            currentOrder,
+            createdDate,
+            deliveryPercentage,
+            foods,
         } = order
         return {
             id,
-            customer,
+            isCanceled,
+            isCompleted,
+            destination,
             rider,
             orderedItems: await this.mergeOrderItemsWithQuantities(
-                quantities,
-                orderedItems
+                orderedItems,
+                foods
             ),
-            destination,
-            isCompleted,
-            isCanceled,
+            customer,
+            currentOrder,
+            createdDate,
+            deliveryPercentage,
         }
     }
 }

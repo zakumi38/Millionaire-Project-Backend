@@ -20,12 +20,8 @@ export class CreateOrderDto {
 
     @IsNotEmpty()
     @IsArray()
-    @IsNumber({}, { each: true })
-    readonly orderedItems: number[]
-
-    @IsNotEmpty()
     @IsObject({ each: true })
-    readonly quantities: Quantity[]
+    readonly orderedItems: Quantity[]
 
     @IsNotEmpty()
     @IsString()

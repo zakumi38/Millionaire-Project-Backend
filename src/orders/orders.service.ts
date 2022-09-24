@@ -47,7 +47,7 @@ export class OrdersService {
         this.commonService = new CommonService(orderRepository, "Order")
     }
 
-    async create(createOrderDto: CreateOrderDto) {
+    async create(createOrderDto: CreateOrderDto): Promise<ModifiedOrder> {
         const orderedFoodIds = createOrderDto.orderedItems.map(
             (item) => item.id
         )
@@ -75,19 +75,24 @@ export class OrdersService {
         )
     }
 
-    async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
+    async update(
+        id: number,
+        updateOrderDto: UpdateOrderDto
+    ): Promise<ModifiedOrder> {
         // Update the entities except customer
         // This is important
-        const { rider, isCompleted, destination } = updateOrderDto
-        const orderedItems = await this.preloadFoods(
-            updateOrderDto.orderedItems
+        const { rider, isCompleted, destination, orderedItems } = updateOrderDto
+        const orderedFoodIds = orderedItems.map((item) => item.id)
+        const preloadOrderedFoods = await this.preloadFoods(orderedFoodIds)
+        return this.modifyOrder(
+            await this.commonService.update(id, {
+                rider,
+                isCompleted,
+                destination,
+                foods: preloadOrderedFoods,
+                orderedItems: updateOrderDto.orderedItems,
+            })
         )
-        return this.commonService.update(id, {
-            rider,
-            isCompleted,
-            destination,
-            orderedItems,
-        })
     }
 
     async remove(id: number): Promise<Order> {

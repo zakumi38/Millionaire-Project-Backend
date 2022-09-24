@@ -69,8 +69,10 @@ export class OrdersService {
         return Promise.all(orders.map((order) => this.modifyOrder(order)))
     }
 
-    async findOne(id: number): Promise<Order> {
-        return this.commonService.findOne(id, ["customer", "foods", "rider"])
+    async findOne(id: number): Promise<ModifiedOrder> {
+        return this.modifyOrder(
+            await this.commonService.findOne(id, ["customer", "foods", "rider"])
+        )
     }
 
     async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {

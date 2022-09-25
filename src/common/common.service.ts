@@ -11,7 +11,7 @@ import { UpdateOrderDto } from "../orders/dto/update-order.dto"
 import { UpdateRiderDto } from "../riders/dto/update-rider.dto"
 import { UpdateShopDto } from "../shops/dto/update-shop.dto"
 
-type Entity = Customer | Food | Order | Rider | Shop
+export type Entity = Customer | Food | Order | Rider | Shop
 type UpdateDTOs =
     | UpdateCustomerDto
     | UpdateFoodDto
@@ -20,15 +20,10 @@ type UpdateDTOs =
     | UpdateShopDto
 type UserEntity = Customer | Rider
 export default class CommonService {
-    // Inserts the repository of the entity
-    private readonly repository: Repository<Entity>
-    // The name of the entity for showing error messages
-    private readonly entityName: string
-
-    constructor(repository: Repository<Entity>, entityName: string) {
-        this.repository = repository
-        this.entityName = entityName
-    }
+    constructor(
+        private repository: Repository<Entity>,
+        private entityName: string
+    ) {}
 
     /**
      * Find all the related items in the database
@@ -110,6 +105,7 @@ export default class CommonService {
         const user = await this.repository.findOne({ where: { email: email } })
         return user as UserEntity
     }
+
     async findByToken(
         token: string,
         type: "accessToken" | "refreshToken"

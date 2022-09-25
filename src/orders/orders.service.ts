@@ -6,6 +6,33 @@ import { Order } from "./entities/order.entity"
 import { In, Repository } from "typeorm"
 import { Food } from "../foods/entities/food.entity"
 import CommonService from "../common/common.service"
+import { Customer } from "../customers/entities/customer.entity"
+import { Rider } from "../riders/entities/rider.entity"
+import { Shop } from "../shops/entities/shop.entity"
+
+interface ModifiedOrderedItems {
+    isAvailable: boolean
+    quantity: number
+    shop: Shop
+    createdDate: Date
+    price: number
+    name: string
+    description: string
+    id: number
+}
+
+export interface ModifiedOrder {
+    id: number
+    customer: Customer
+    rider: Rider
+    orderedItems: ModifiedOrderedItems[]
+    destination: string
+    isCompleted: boolean
+    isCanceled: boolean
+    currentOrder: Order
+    createdDate: Date
+    deliveryPercentage: number
+}
 
 @Injectable()
 export class OrdersService {
@@ -20,51 +47,65 @@ export class OrdersService {
         this.commonService = new CommonService(orderRepository, "Order")
     }
 
-    async create(createOrderDto: CreateOrderDto): Promise<Order> {
-        const orderedItems = await this.preloadFoods(
-            createOrderDto.orderedItems
+    async create(createOrderDto: CreateOrderDto): Promise<ModifiedOrder> {
+        const orderedFoodIds = createOrderDto.orderedItems.map(
+            (item) => item.id
         )
-        return await this.commonService.create(createOrderDto, { orderedItems })
+        const preloadedOrderedFoods = await this.preloadFoods(orderedFoodIds)
+        return this.modifyOrder(
+            await this.commonService.create(createOrderDto, {
+                foods: preloadedOrderedFoods,
+                orderedItems: createOrderDto.orderedItems,
+            })
+        )
     }
 
-    findAll(): Promise<Order[]> {
-        return this.commonService.findAll(["customer", "orderedItems", "rider"])
-    }
-
-    async findOne(id: number): Promise<Order> {
-        return this.commonService.findOne(id, [
+    async findAll(): Promise<ModifiedOrder[]> {
+        const orders = await this.commonService.findAll([
             "customer",
-            "orderedItems",
+            "foods",
             "rider",
         ])
+        return Promise.all(orders.map((order) => this.modifyOrder(order)))
     }
 
-    async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
+    async findOne(id: number): Promise<ModifiedOrder> {
+        return this.modifyOrder(
+            await this.commonService.findOne(id, ["customer", "foods", "rider"])
+        )
+    }
+
+    async update(
+        id: number,
+        updateOrderDto: UpdateOrderDto
+    ): Promise<ModifiedOrder> {
         // Update the entities except customer
         // This is important
-        const { rider, isCompleted, destination } = updateOrderDto
-        const orderedItems = await this.preloadFoods(
-            updateOrderDto.orderedItems
+        const { rider, isCompleted, destination, orderedItems } = updateOrderDto
+        const orderedFoodIds = orderedItems.map((item) => item.id)
+        const preloadOrderedFoods = await this.preloadFoods(orderedFoodIds)
+        return this.modifyOrder(
+            await this.commonService.update(id, {
+                rider,
+                isCompleted,
+                destination,
+                foods: preloadOrderedFoods,
+                orderedItems: updateOrderDto.orderedItems,
+            })
         )
-        return this.commonService.update(id, {
-            rider,
-            isCompleted,
-            destination,
-            orderedItems,
-        })
     }
 
     async remove(id: number): Promise<Order> {
         return this.commonService.remove(id)
     }
 
-    private async preloadFoods(orderedItems: number[]): Promise<Food[]> {
+    private async preloadFoods(orderedItems): Promise<Food[]> {
         // Find the orderedItems[] in food
         const foods = await this.foodRepository.findBy({
             id: In(orderedItems),
         })
-        // For storing the ids that weren't able to find
-        let notFoundIds = []
+        // For storing the ids tht weren't able to find
+        const notFoundIds = []
         // Check the ids that weren't able to find and add them to notFoundIds
         orderedItems.map((id, index) => {
             if (!foods[index] && id !== foods[index]?.id) notFoundIds.push(id)
@@ -75,5 +116,59 @@ export class OrdersService {
                 `Ordered Item #${notFoundIds} cannot be found`
             )
         return foods
+    }
+
+    /**
+     * Merge the separated OrderItems with Quantities
+     * @param orderedItems The quantity entity
+     * @param foods The orderedItems entity
+     * @private
+     */
+    private async mergeOrderItemsWithQuantities(
+        orderedItems,
+        foods
+    ): Promise<ModifiedOrderedItems[]> {
+        return orderedItems.map((quantity) => {
+            const createdOrderedItem: Food = foods.find(
+                (item) => item.id === quantity.id
+            )
+            return { ...quantity, ...createdOrderedItem }
+        })
+    }
+
+    /**
+     * Create a modified order to return
+     * @param order
+     * @private
+     */
+    private async modifyOrder(order: Order): Promise<ModifiedOrder> {
+        const {
+            id,
+            isCanceled,
+            isCompleted,
+            destination,
+            rider,
+            orderedItems,
+            customer,
+            currentOrder,
+            createdDate,
+            deliveryPercentage,
+            foods,
+        } = order
+        return {
+            id,
+            isCanceled,
+            isCompleted,
+            destination,
+            rider,
+            orderedItems: await this.mergeOrderItemsWithQuantities(
+                orderedItems,
+                foods
+            ),
+            customer,
+            currentOrder,
+            createdDate,
+            deliveryPercentage,
+        }
     }
 }

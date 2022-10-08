@@ -18,7 +18,7 @@ export class Rider extends Common {
     @Column("varchar", { unique: true })
     phoneNumber: string
 
-    @Column("varchar")
+    @Column("varchar", { select: false })
     password: string
 
     @Column("int", { default: 0 })
@@ -30,10 +30,10 @@ export class Rider extends Common {
     @Column("varchar", { nullable: true })
     photoUrl: string
 
-    @Column("varchar", { nullable: true })
+    @Column("varchar", { nullable: true, select: false })
     accessToken: string
 
-    @Column("varchar", { nullable: true })
+    @Column("varchar", { nullable: true, select: false })
     refreshToken: string
 
     @OneToMany(() => Order, (order) => order.rider, { nullable: true })

@@ -71,7 +71,12 @@ export class OrdersService {
 
     async findOne(id: number): Promise<ModifiedOrder> {
         return this.modifyOrder(
-            await this.commonService.findOne(id, ["customer", "foods", "rider"])
+            await this.commonService.findOne(id, [
+                "customer",
+                "foods",
+                "rider",
+                "foods.shop",
+            ])
         )
     }
 
@@ -136,12 +141,16 @@ export class OrdersService {
         })
     }
 
+    private async groupByShops(orders: ModifiedOrderedItems[]) {
+        return orders.map((order) => order.shop)
+    }
+
     /**
      * Create a modified order to return
      * @param order
      * @private
      */
-    private async modifyOrder(order: Order): Promise<ModifiedOrder> {
+    private async modifyOrder(order: Order) {
         const {
             id,
             isCanceled,
@@ -155,16 +164,18 @@ export class OrdersService {
             deliveryPercentage,
             foods,
         } = order
+        const modifiedOrderedItems = await this.mergeOrderItemsWithQuantities(
+            orderedItems,
+            foods
+        )
+        console.log(await this.groupByShops(modifiedOrderedItems))
         return {
             id,
             isCanceled,
             isCompleted,
             destination,
             rider,
-            orderedItems: await this.mergeOrderItemsWithQuantities(
-                orderedItems,
-                foods
-            ),
+            orderedItems: modifiedOrderedItems,
             customer,
             currentOrder,
             createdDate,

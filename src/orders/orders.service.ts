@@ -22,16 +22,16 @@ interface ModifiedOrderedItems {
 }
 
 export interface ModifiedOrder {
-    id: number
-    customer: Customer
-    rider: Rider
-    orderedItems: ModifiedOrderedItems[]
-    destination: string
-    isCompleted: boolean
     isCanceled: boolean
-    currentOrder: Order
     createdDate: Date
     deliveryPercentage: number
+    destination: string
+    shop: Shop[]
+    id: number
+    rider: Rider
+    currentOrder: Order
+    isCompleted: boolean
+    customer: Customer
 }
 
 @Injectable()
@@ -52,12 +52,10 @@ export class OrdersService {
             (item) => item.id
         )
         const preloadedOrderedFoods = await this.preloadFoods(orderedFoodIds)
-        return this.modifyOrder(
-            await this.commonService.create(createOrderDto, {
-                foods: preloadedOrderedFoods,
-                orderedItems: createOrderDto.orderedItems,
-            })
-        )
+        return await this.commonService.create(createOrderDto, {
+            foods: preloadedOrderedFoods,
+            orderedItems: createOrderDto.orderedItems,
+        })
     }
 
     async findAll(): Promise<ModifiedOrder[]> {
@@ -65,6 +63,7 @@ export class OrdersService {
             "customer",
             "foods",
             "rider",
+            "foods.shop",
         ])
         return Promise.all(orders.map((order) => this.modifyOrder(order)))
     }
@@ -89,15 +88,13 @@ export class OrdersService {
         const { rider, isCompleted, destination, orderedItems } = updateOrderDto
         const orderedFoodIds = orderedItems.map((item) => item.id)
         const preloadOrderedFoods = await this.preloadFoods(orderedFoodIds)
-        return this.modifyOrder(
-            await this.commonService.update(id, {
-                rider,
-                isCompleted,
-                destination,
-                foods: preloadOrderedFoods,
-                orderedItems: updateOrderDto.orderedItems,
-            })
-        )
+        return this.commonService.update(id, {
+            rider,
+            isCompleted,
+            destination,
+            foods: preloadOrderedFoods,
+            orderedItems: updateOrderDto.orderedItems,
+        })
     }
 
     async remove(id: number): Promise<Order> {
@@ -141,8 +138,31 @@ export class OrdersService {
         })
     }
 
-    private async groupByShops(orders: ModifiedOrderedItems[]) {
-        return orders.map((order) => order.shop)
+    private async extractShops(orderedItems) {
+        let shops: Shop[] = [],
+            uniqueShops: Shop[] = []
+        // Get all the shops from the ordered Foods
+        orderedItems.map((item) => {
+            shops.push(item.shop)
+            item.shop = item.shop.id
+        })
+        // Filter the shops to get unique ones
+        shops.map((shop) => {
+            uniqueShops.findIndex((uniqueShop) => uniqueShop.id === shop.id) ===
+                -1 && uniqueShops.push(shop)
+        })
+
+        // Nesting foods in those unique shops
+        uniqueShops.map((uniqueShop) => {
+            let foodsOfShop = orderedItems.filter((orderedItem) => {
+                return orderedItem.shop === uniqueShop.id
+            })
+            foodsOfShop.map((foodOfShop) => {
+                delete foodOfShop.shop
+            })
+            uniqueShop.foods = [...foodsOfShop]
+        })
+        return uniqueShops
     }
 
     /**
@@ -150,7 +170,7 @@ export class OrdersService {
      * @param order
      * @private
      */
-    private async modifyOrder(order: Order) {
+    private async modifyOrder(order: Order): Promise<ModifiedOrder> {
         const {
             id,
             isCanceled,
@@ -168,14 +188,13 @@ export class OrdersService {
             orderedItems,
             foods
         )
-        console.log(await this.groupByShops(modifiedOrderedItems))
         return {
             id,
             isCanceled,
             isCompleted,
             destination,
             rider,
-            orderedItems: modifiedOrderedItems,
+            shop: await this.extractShops(modifiedOrderedItems),
             customer,
             currentOrder,
             createdDate,
